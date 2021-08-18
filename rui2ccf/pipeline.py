@@ -1,11 +1,13 @@
 import json
-from rui2ccf.ontology import SOntology
+from rui2ccf.ontology import SPOntology
 
 
 def run(args):
     """
     """
-    records = json.load(open(args.input_file))
-    o = SOntology.new()
-    o = o.mutate(records)
+    o = SPOntology.new()
+    for f in args.input_file:
+        records = json.load(open(f))
+        o = o.mutate(records)
+
     o.serialize(args.output)
