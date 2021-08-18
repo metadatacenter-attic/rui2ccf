@@ -181,46 +181,50 @@ class SPOntology:
                     self._decimal(obj['z_dimension']),
                     self._string(obj['creator']),
                     self._date(obj['creation_date']),
-                    self._iri(obj['object']['@id']),
-                    [self._iri(placement['@id'])
-                        for placement in obj['placement']],
+                    self._get_object_reference_id(obj),
+                    self._get_object_placement_ids(obj),
                     self._get_reference_organ(obj),
                     self._get_representation_of(obj),
                     self._get_extraction_set(obj),
                     self._get_rui_rank(obj))
-                self._add_object_reference(
-                    self._iri(obj['object']['@id']),
-                    self._string(obj['object']['file']),
-                    self._string(obj['object']['file_subpath']),
-                    self._string(obj['object']['file_format']),
-                    self._iri(obj['object']['placement']['@id']))
-                self._add_object_placement(
-                    self._iri(obj['object']['placement']['@id']),
-                    self._iri(obj['object']['placement']['target']),
-                    self._decimal(obj['object']['placement']['x_scaling']),
-                    self._decimal(obj['object']['placement']['y_scaling']),
-                    self._decimal(obj['object']['placement']['z_scaling']),
-                    self._decimal(obj['object']['placement']['x_rotation']),
-                    self._decimal(obj['object']['placement']['y_rotation']),
-                    self._decimal(obj['object']['placement']['z_rotation']),
-                    self._decimal(obj['object']['placement']['x_translation']),
-                    self._decimal(obj['object']['placement']['y_translation']),
-                    self._decimal(obj['object']['placement']['z_translation']),
-                    self._date(obj['object']['placement']['placement_date']))
-                for placement in obj['placement']:
-                    self._add_object_placement(
-                        self._iri(placement['@id']),
-                        self._iri(placement['target']),
-                        self._decimal(placement['x_scaling']),
-                        self._decimal(placement['y_scaling']),
-                        self._decimal(placement['z_scaling']),
-                        self._decimal(placement['x_rotation']),
-                        self._decimal(placement['y_rotation']),
-                        self._decimal(placement['z_rotation']),
-                        self._decimal(placement['x_translation']),
-                        self._decimal(placement['y_translation']),
-                        self._decimal(placement['z_translation']),
-                        self._date(placement['placement_date']))
+                if 'object' in obj:
+                    object_reference = obj['object']
+                    self._add_object_reference(
+                        self._iri(object_reference['@id']),
+                        self._string(object_reference['file']),
+                        self._string(object_reference['file_format']),
+                        self._get_file_subpath(object_reference),
+                        self._get_object_placement_id(object_reference))
+                    if 'placement' in object_reference:
+                        object_placement = object_reference['placement']
+                        self._add_object_placement(
+                            self._iri(object_placement['@id']),
+                            self._iri(object_placement['target']),
+                            self._decimal(object_placement['x_scaling']),
+                            self._decimal(object_placement['y_scaling']),
+                            self._decimal(object_placement['z_scaling']),
+                            self._decimal(object_placement['x_rotation']),
+                            self._decimal(object_placement['y_rotation']),
+                            self._decimal(object_placement['z_rotation']),
+                            self._decimal(object_placement['x_translation']),
+                            self._decimal(object_placement['y_translation']),
+                            self._decimal(object_placement['z_translation']),
+                            self._date(object_placement['placement_date']))
+                if 'placement' in obj:
+                    for object_placement in obj['placement']:
+                        self._add_object_placement(
+                            self._iri(object_placement['@id']),
+                            self._iri(object_placement['target']),
+                            self._decimal(object_placement['x_scaling']),
+                            self._decimal(object_placement['y_scaling']),
+                            self._decimal(object_placement['z_scaling']),
+                            self._decimal(object_placement['x_rotation']),
+                            self._decimal(object_placement['y_rotation']),
+                            self._decimal(object_placement['z_rotation']),
+                            self._decimal(object_placement['x_translation']),
+                            self._decimal(object_placement['y_translation']),
+                            self._decimal(object_placement['z_translation']),
+                            self._date(object_placement['placement_date']))
             elif object_type == "SpatialPlacement":
                 self._add_object_placement(
                     self._iri(obj['@id']),
@@ -249,8 +253,9 @@ class SPOntology:
 
     def _add_spatial_entity(self, identifier, title, x_dimension, y_dimension,
                             z_dimension, creator, creation_date,
-                            object_reference, placements, reference_organ,
-                            representation_of, extraction_set, rui_rank):
+                            object_reference, object_placements,
+                            reference_organ, representation_of, extraction_set,
+                            rui_rank):
         self.graph.add((identifier, RDF.type, OWL_NS.NamedIndividual))
         self.graph.add((identifier, RDF.type, self._iri_of('spatial_entity')))
         self.graph.add((identifier, self._iri_of('title'), title))
@@ -259,11 +264,13 @@ class SPOntology:
         self.graph.add((identifier, self._iri_of('z_dimension'), z_dimension))
         self.graph.add((identifier, self._iri_of('creator'), creator))
         self.graph.add((identifier, self._iri_of('date'), creation_date))
-        self.graph.add((identifier, self._iri_of('has_object_reference'),
-                       object_reference))
-        for placement in placements:
-            self.graph.add((identifier, self._iri_of('has_placement'),
-                           placement))
+        if object_reference is not None:
+            self.graph.add((identifier, self._iri_of('has_object_reference'),
+                           object_reference))
+        if object_placements is not None:
+            for object_placement in object_placements:
+                self.graph.add((identifier, self._iri_of('has_placement'),
+                               object_placement))
         if reference_organ is not None:
             self.graph.add((identifier, self._iri_of('has_reference_organ'),
                            reference_organ))
@@ -276,18 +283,19 @@ class SPOntology:
         if rui_rank is not None:
             self.graph.add((identifier, self._iri_of('rui_rank'), rui_rank))
 
-    def _add_object_reference(self, identifier, file_name, file_subpath,
-                              file_format, object_placement):
+    def _add_object_reference(self, identifier, file_name, file_format,
+                              file_subpath, object_placement):
         self.graph.add((identifier, RDF.type, OWL_NS.NamedIndividual))
         self.graph.add((identifier, RDF.type,
                        self._iri_of('spatial_object_reference')))
         self.graph.add((identifier, self._iri_of('file_name'), file_name))
-        self.graph.add((identifier, self._iri_of('file_subpath'),
-                       file_subpath))
         self.graph.add((identifier, self._iri_of('file_format'), file_format))
-        self.graph.add((identifier, self._iri_of('file_name'), file_name))
-        self.graph.add((identifier, self._iri_of('has_placement'),
-                       object_placement))
+        if file_subpath is not None:
+            self.graph.add((identifier, self._iri_of('file_subpath'),
+                           file_subpath))
+        if object_placement is not None:
+            self.graph.add((identifier, self._iri_of('has_placement'),
+                           object_placement))
 
     def _add_object_placement(self, identifier, spatial_entity,
                               x_scaling, y_scaling, z_scaling,
@@ -313,6 +321,25 @@ class SPOntology:
                        z_translation))
         self.graph.add((identifier, self._iri_of('date'), placement_date))
 
+    def _get_object_reference_id(self, obj):
+        try:
+            return self._iri(obj['object']['@id'])
+        except KeyError:
+            return None
+
+    def _get_object_placement_id(self, obj):
+        try:
+            return self._iri(obj['placement']['@id'])
+        except KeyError:
+            return None
+
+    def _get_object_placement_ids(self, obj):
+        try:
+            return [self._iri(placement['@id'])
+                    for placement in obj['placement']]
+        except KeyError:
+            return None
+
     def _get_reference_organ(self, obj):
         try:
             return self._iri(obj['reference_organ'])
@@ -334,6 +361,12 @@ class SPOntology:
     def _get_rui_rank(self, obj):
         try:
             return self._integer(obj['rui_rank'])
+        except KeyError:
+            return None
+
+    def _get_file_subpath(self, obj):
+        try:
+            self._string(obj['file_subpath'])
         except KeyError:
             return None
 
