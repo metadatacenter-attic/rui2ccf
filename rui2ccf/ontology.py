@@ -1,9 +1,5 @@
-from string import punctuation
-from stringcase import lowercase, snakecase
-
 from rdflib import Graph, Namespace, URIRef, Literal, BNode, XSD, RDF
-from rdflib.extras.infixowl import OWL_NS, Ontology, Class, Restriction,\
-    Property, BooleanClass
+from rdflib.extras.infixowl import OWL_NS, Ontology, Class, Property
 
 
 class SPOntology:
