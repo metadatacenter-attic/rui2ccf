@@ -11,6 +11,7 @@ class SPOntology:
 
     _CCF_NS = Namespace(_CCF_BASE_IRI)
     _DC_ELEMENTS_NS = Namespace("http://purl.org/dc/elements/1.1/")
+    _DC_TERMS_NS = Namespace("http://purl.org/dc/terms/")
     _OBO_NS = Namespace("http://purl.obolibrary.org/obo/")
 
     def __init__(self, graph=None, **kwargs):
@@ -22,6 +23,7 @@ class SPOntology:
         g = Graph()
         g.bind('ccf', SPOntology._CCF_NS)
         g.bind('dc', SPOntology._DC_ELEMENTS_NS)
+        g.bind('dcterms', SPOntology._DC_TERMS_NS)
         g.bind('obo', SPOntology._OBO_NS)
         g.bind('owl', OWL_NS)
 
@@ -116,8 +118,8 @@ class SPOntology:
         creator =\
             Property(SPOntology._DC_ELEMENTS_NS.creator,
                      baseType=OWL_NS.AnnotationProperty, graph=g)
-        date =\
-            Property(SPOntology._DC_ELEMENTS_NS.date,
+        creation_date =\
+            Property(SPOntology._DC_TERMS_NS.created,
                      baseType=OWL_NS.AnnotationProperty, graph=g)
 
         return SPOntology(
@@ -154,7 +156,7 @@ class SPOntology:
             file_format=file_format,
             rui_rank=rui_rank,
             creator=creator,
-            date=date)
+            creation_date=creation_date)
 
     def mutate(self, objects):
         """
@@ -265,7 +267,7 @@ class SPOntology:
         self.graph.add((identifier, self._iri_of('y_dimension'), y_dimension))
         self.graph.add((identifier, self._iri_of('z_dimension'), z_dimension))
         self.graph.add((identifier, self._iri_of('creator'), creator))
-        self.graph.add((identifier, self._iri_of('date'), creation_date))
+        self.graph.add((identifier, self._iri_of('creation_date'), creation_date))
         if object_reference is not None:
             self.graph.add((identifier, self._iri_of('has_object_reference'),
                            object_reference))
@@ -318,7 +320,7 @@ class SPOntology:
                        y_translation))
         self.graph.add((identifier, self._iri_of('z_translation'),
                        z_translation))
-        self.graph.add((identifier, self._iri_of('date'), placement_date))
+        self.graph.add((identifier, self._iri_of('creation_date'), placement_date))
 
     def _get_object_reference_id(self, obj):
         try:
