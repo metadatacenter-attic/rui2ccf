@@ -1,7 +1,7 @@
 from string import punctuation
 from stringcase import lowercase, snakecase
 
-from rdflib import Graph, Namespace, URIRef, Literal, XSD, RDF, OWL
+from rdflib import Graph, Namespace, URIRef, Literal, BNode, XSD, RDF
 from rdflib.extras.infixowl import OWL_NS, Ontology, Class, Restriction,\
     Property, BooleanClass
 
@@ -258,6 +258,12 @@ class SPOntology:
                             rui_rank):
         self.graph.add((identifier, RDF.type, OWL_NS.NamedIndividual))
         self.graph.add((identifier, RDF.type, self._iri_of('spatial_entity')))
+        if representation_of is not None:
+            bn = BNode()
+            self.graph.add((identifier, RDF.type, bn))
+            self.graph.add((bn, RDF.type, OWL_NS.Restriction))
+            self.graph.add((bn, OWL_NS.onProperty, self._iri_of('representation_of')))
+            self.graph.add((bn, OWL_NS.someValuesFrom, representation_of))
         self.graph.add((identifier, self._iri_of('title'), title))
         self.graph.add((identifier, self._iri_of('x_dimension'), x_dimension))
         self.graph.add((identifier, self._iri_of('y_dimension'), y_dimension))
@@ -274,9 +280,6 @@ class SPOntology:
         if reference_organ is not None:
             self.graph.add((identifier, self._iri_of('has_reference_organ'),
                            reference_organ))
-        if representation_of is not None:
-            self.graph.add((identifier, self._iri_of('representation_of'),
-                           representation_of))
         if extraction_set is not None:
             self.graph.add((identifier, self._iri_of(
                 'belongs_to_extraction_set'), extraction_set))
