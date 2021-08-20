@@ -127,7 +127,7 @@ class SPOntology:
         return SPOntology(
             g,
             ontology=Ontology(
-                identifier=URIRef("http://purl.org/ccf/ccf-spo"),
+                identifier=URIRef("http://purl.org/ccf/ccf-spo.owl"),
                 graph=g),
             extraction_set=extraction_set,
             spatial_entity=spatial_entity,
