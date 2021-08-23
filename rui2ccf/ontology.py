@@ -166,13 +166,13 @@ class SPOntology:
 
             if object_type == "ExtractionSet":
                 self._add_extraction_set(
-                    self._iri(obj['@id']),
+                    self._expand(obj['@id']),
                     self._string(obj['label']),
-                    self._iri(obj['extraction_set_for']),
+                    self._expand(obj['extraction_set_for']),
                     self._integer(obj['rui_rank']))
             elif object_type == "SpatialEntity":
                 self._add_spatial_entity(
-                    self._iri(obj['@id']),
+                    self._expand(obj['@id']),
                     self._string(obj['label']),
                     self._decimal(obj['x_dimension']),
                     self._decimal(obj['y_dimension']),
@@ -188,7 +188,7 @@ class SPOntology:
                 if 'object' in obj:
                     object_reference = obj['object']
                     self._add_object_reference(
-                        self._iri(object_reference['@id']),
+                        self._expand(object_reference['@id']),
                         self._string(object_reference['file']),
                         self._string(object_reference['file_format']),
                         self._get_file_subpath(object_reference),
@@ -196,8 +196,8 @@ class SPOntology:
                     if 'placement' in object_reference:
                         object_placement = object_reference['placement']
                         self._add_object_placement(
-                            self._iri(object_placement['@id']),
-                            self._iri(object_placement['target']),
+                            self._expand(object_placement['@id']),
+                            self._expand(object_placement['target']),
                             self._decimal(object_placement['x_scaling']),
                             self._decimal(object_placement['y_scaling']),
                             self._decimal(object_placement['z_scaling']),
@@ -211,8 +211,8 @@ class SPOntology:
                 if 'placement' in obj:
                     for object_placement in obj['placement']:
                         self._add_object_placement(
-                            self._iri(object_placement['@id']),
-                            self._iri(object_placement['target']),
+                            self._expand(object_placement['@id']),
+                            self._expand(object_placement['target']),
                             self._decimal(object_placement['x_scaling']),
                             self._decimal(object_placement['y_scaling']),
                             self._decimal(object_placement['z_scaling']),
@@ -225,8 +225,8 @@ class SPOntology:
                             self._date(object_placement['placement_date']))
             elif object_type == "SpatialPlacement":
                 self._add_object_placement(
-                    self._iri(obj['@id']),
-                    self._iri(obj['target']),
+                    self._expand(obj['@id']),
+                    self._expand(obj['target']),
                     self._decimal(obj['x_scaling']),
                     self._decimal(obj['y_scaling']),
                     self._decimal(obj['z_scaling']),
@@ -325,38 +325,38 @@ class SPOntology:
 
     def _get_object_reference_id(self, obj):
         try:
-            return self._iri(obj['object']['@id'])
+            return self._expand(obj['object']['@id'])
         except KeyError:
             return None
 
     def _get_object_placement_id(self, obj):
         try:
-            return self._iri(obj['placement']['@id'])
+            return self._expand(obj['placement']['@id'])
         except KeyError:
             return None
 
     def _get_object_placement_ids(self, obj):
         try:
-            return [self._iri(placement['@id'])
+            return [self._expand(placement['@id'])
                     for placement in obj['placement']]
         except KeyError:
             return None
 
     def _get_reference_organ(self, obj):
         try:
-            return self._iri(obj['reference_organ'])
+            return self._expand(obj['reference_organ'])
         except KeyError:
             return None
 
     def _get_representation_of(self, obj):
         try:
-            return self._term_iri(obj['representation_of'])
+            return self._iri(obj['representation_of'])
         except KeyError:
             return None
 
     def _get_extraction_set(self, obj):
         try:
-            return self._iri(obj['extraction_set'])
+            return self._expand(obj['extraction_set'])
         except KeyError:
             return None
 
@@ -372,10 +372,10 @@ class SPOntology:
         except KeyError:
             return None
 
-    def _iri(self, str):
+    def _expand(self, str):
         return URIRef(self._CCF_BASE_IRI + str[1:])
 
-    def _term_iri(self, str):
+    def _iri(self, str):
         return URIRef(str)
 
     def _string(self, str):
