@@ -320,7 +320,8 @@ class SPOntology:
                        y_translation))
         self.graph.add((identifier, self._iri_of('z_translation'),
                        z_translation))
-        self.graph.add((identifier, self._iri_of('creation_date'), placement_date))
+        self.graph.add((identifier, self._iri_of('creation_date'),
+                       placement_date))
 
     def _get_object_reference_id(self, obj):
         try:
