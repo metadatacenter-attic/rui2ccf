@@ -19,7 +19,7 @@ class SPOntology:
         self.kwargs = kwargs
 
     @staticmethod
-    def new():
+    def new(name):
         g = Graph()
         g.bind('ccf', SPOntology._CCF_NS)
         g.bind('dc', SPOntology._DC_ELEMENTS_NS)
@@ -122,10 +122,11 @@ class SPOntology:
             Property(SPOntology._DC_TERMS_NS.created,
                      baseType=OWL_NS.AnnotationProperty, graph=g)
 
+        ontology_iri = SPOntology._CCF_NS + name
         return SPOntology(
             g,
             ontology=Ontology(
-                identifier=URIRef("http://purl.org/ccf/ccf-spo.owl"),
+                identifier=URIRef(ontology_iri),
                 graph=g),
             extraction_set=extraction_set,
             spatial_entity=spatial_entity,
