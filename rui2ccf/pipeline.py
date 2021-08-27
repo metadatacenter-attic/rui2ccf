@@ -6,14 +6,13 @@ from rui2ccf.ontology import SPOntology
 def run(args):
     """
     """
-    if not args.input_file.endswith(".json"):
-        raise IOError("Required JSON format")
+    output_path, output_basename = os.path.split(args.output)
 
-    path, basename = os.path.split(args.output)
-
-    o = SPOntology.new(basename)
-    for f in args.input_file:
-        records = json.load(open(f))
+    o = SPOntology.new(output_basename)
+    for fileName in args.input_file:
+        if not (fileName.endswith(".json") or fileName.endswith(".jsonld")):
+            raise IOError("Required JSON format")
+        records = json.load(open(fileName))
         o = o.mutate(records)
 
     o.serialize(args.output)
