@@ -28,7 +28,8 @@ setup(name='rui2ccf',
       classifiers=classifiers,
       install_requires=[
           'rdflib==5.0.0',
-          'stringcase==1.2.0'
+          'stringcase==1.2.0',
+          'requests_file==1.5.1'
       ],
       python_requires='>=3.5, <3.9',
       test_suite='nose.collector',
