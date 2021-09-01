@@ -121,6 +121,9 @@ class SPOntology:
         creation_date =\
             Property(SPOntology._DC_TERMS_NS.created,
                      baseType=OWL_NS.AnnotationProperty, graph=g)
+        unit_of_measurement =\
+            Property(SPOntology._CCF_NS.unit_of_measurement,
+                     baseType=OWL_NS.AnnotationProperty, graph=g)
 
         ontology_iri = SPOntology._CCF_NS + name
         return SPOntology(
@@ -157,7 +160,8 @@ class SPOntology:
             file_format=file_format,
             rui_rank=rui_rank,
             creator=creator,
-            creation_date=creation_date)
+            creation_date=creation_date,
+            unit_of_measurement=unit_of_measurement)
 
     def mutate(self, objects):
         """
@@ -264,9 +268,12 @@ class SPOntology:
             self.graph.add((bn, OWL_NS.onProperty, self._iri_of('representation_of')))
             self.graph.add((bn, OWL_NS.someValuesFrom, representation_of))
         self.graph.add((identifier, self._iri_of('title'), title))
-        self.graph.add((identifier, self._iri_of('x_dimension'), x_dimension))
-        self.graph.add((identifier, self._iri_of('y_dimension'), y_dimension))
-        self.graph.add((identifier, self._iri_of('z_dimension'), z_dimension))
+        self._add_measurement(identifier, self._iri_of('x_dimension'), x_dimension,
+                              self._OBO_NS.UO_0000016)  # millimeter
+        self._add_measurement(identifier, self._iri_of('y_dimension'), y_dimension,
+                              self._OBO_NS.UO_0000016)  # millimeter
+        self._add_measurement(identifier, self._iri_of('z_dimension'), z_dimension,
+                              self._OBO_NS.UO_0000016)  # millimeter
         self.graph.add((identifier, self._iri_of('creator'), creator))
         self.graph.add((identifier, self._iri_of('creation_date'), creation_date))
         if object_reference is not None:
@@ -309,20 +316,36 @@ class SPOntology:
                        self._iri_of('spatial_placement')))
         self.graph.add((identifier, self._iri_of('is_placement_of'),
                        spatial_entity))
-        self.graph.add((identifier, self._iri_of('x_scaling'), x_scaling))
-        self.graph.add((identifier, self._iri_of('y_scaling'), y_scaling))
-        self.graph.add((identifier, self._iri_of('z_scaling'), z_scaling))
-        self.graph.add((identifier, self._iri_of('x_rotation'), x_rotation))
-        self.graph.add((identifier, self._iri_of('y_rotation'), y_rotation))
-        self.graph.add((identifier, self._iri_of('z_rotation'), z_rotation))
-        self.graph.add((identifier, self._iri_of('x_translation'),
-                       x_translation))
-        self.graph.add((identifier, self._iri_of('y_translation'),
-                       y_translation))
-        self.graph.add((identifier, self._iri_of('z_translation'),
-                       z_translation))
+        self._add_measurement(identifier, self._iri_of('x_scaling'), x_scaling,
+                              self._OBO_NS.UO_0010006)  # ratio
+        self._add_measurement(identifier, self._iri_of('y_scaling'), y_scaling,
+                              self._OBO_NS.UO_0010006)  # ratio
+        self._add_measurement(identifier, self._iri_of('z_scaling'), z_scaling,
+                              self._OBO_NS.UO_0010006)  # ratio
+        self._add_measurement(identifier, self._iri_of('x_rotation'), x_rotation,
+                              self._OBO_NS.UO_0000185)  # degree
+        self._add_measurement(identifier, self._iri_of('y_rotation'), y_rotation,
+                              self._OBO_NS.UO_0000185)  # degree
+        self._add_measurement(identifier, self._iri_of('z_rotation'), z_rotation,
+                              self._OBO_NS.UO_0000185)  # degree
+        self._add_measurement(identifier, self._iri_of('x_translation'), x_translation,
+                              self._OBO_NS.UO_0000016)  # millimeter
+        self._add_measurement(identifier, self._iri_of('y_translation'), y_translation,
+                              self._OBO_NS.UO_0000016)  # millimeter
+        self._add_measurement(identifier, self._iri_of('z_translation'), z_translation,
+                              self._OBO_NS.UO_0000016)  # millimeter
         self.graph.add((identifier, self._iri_of('creation_date'),
                        placement_date))
+
+    def _add_measurement(self, identifier, measurement, value, unit):
+        self.graph.add((identifier, measurement, value))
+        # Add the unit of measurement annotation
+        bn = BNode()
+        self.graph.add((bn, RDF.type, OWL_NS.Axiom))
+        self.graph.add((bn, OWL_NS.annotatedSource, identifier))
+        self.graph.add((bn, OWL_NS.annotatedProperty, measurement))
+        self.graph.add((bn, OWL_NS.annotatedTarget, value))
+        self.graph.add((bn, self._iri_of('unit_of_measurement'), unit))
 
     def _get_object_reference_id(self, obj):
         try:
