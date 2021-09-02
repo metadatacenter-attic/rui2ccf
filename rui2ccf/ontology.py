@@ -420,5 +420,4 @@ class SPOntology:
     def serialize(self, destination):
         """
         """
-        self.graph.serialize(format='application/rdf+xml',
-                             destination=destination)
+        self.graph.serialize(format='ttl', destination=destination)
