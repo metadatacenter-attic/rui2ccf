@@ -19,7 +19,7 @@ class SPOntology:
         self.kwargs = kwargs
 
     @staticmethod
-    def new(name):
+    def new(ontology_iri):
         g = Graph()
         g.bind('ccf', SPOntology._CCF_NS)
         g.bind('dc', SPOntology._DC_ELEMENTS_NS)
@@ -125,7 +125,6 @@ class SPOntology:
             Property(SPOntology._CCF_NS.unit_of_measurement,
                      baseType=OWL_NS.AnnotationProperty, graph=g)
 
-        ontology_iri = SPOntology._CCF_NS + name
         return SPOntology(
             g,
             ontology=Ontology(
