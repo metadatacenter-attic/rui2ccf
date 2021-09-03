@@ -19,7 +19,7 @@ $ pip install .
 
 2. Run the tool
    ```
-   $ rui2ccf rui.jsonld -o ccf-spo.ttl
+   $ rui2ccf rui.jsonld --ontology-iri http://purl.org/ccf/data/spatial_entities.owl -o spatial_entities.owl
    ```
 
 3. Open the resulting output file using [Protégé](https://protege.stanford.edu/)
